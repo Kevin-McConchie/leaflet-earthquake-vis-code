@@ -35,6 +35,12 @@ function getColor(magnitude) {
 // Map create map function
 function createMap(earthquakes) {
 
+    // Create the map object with options
+    var map = L.map("map", {
+        center: [40.73, -74.0059],
+        zoom: 2,
+        // layers: [lightmap, earthquakes]
+    });
     // Create the tile layer that will be the background of our map
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "<a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -42,7 +48,7 @@ function createMap(earthquakes) {
         id: "light-v10",
         accessToken: API_KEY
 
-    });
+    }).addTo(map);
 
     var satellite = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -50,40 +56,36 @@ function createMap(earthquakes) {
         id: "satellite-v9",
         accessToken: API_KEY
     });
+
     // Create a baseMaps object to hold the map layer
     var baseMaps = {
         "Light Map": lightmap,
         "Satellite Map": satellite
     };
-
+    var earthquakes = new L.LayerGroup();
     var overlayMaps = {
-        "earthquakes": earthquakes
+        "Earthquakes": earthquakes
     };
 
-    // Create the map object with options
-    var map = L.map("map", {
-        center: [40.73, -74.0059],
-        zoom: 2,
-        layers: [lightmap, earthquakes]
-    });
 
     // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: false
-    }).addTo(map);
+    L.control.layers(baseMaps, overlayMaps
+        // collapsed: false
+    ).addTo(map);
 
 };
 
+// Perform an API call to the Earthquake API to get station information. 
+d3.json(url,function (response) {
+
+    console.log(response.features);
+
+    // send response data to object createFeatures function
+    createFeatures(response.features)
+});
+
 function createFeatures(earthquakeData) {
 
-    // Perform an API call to the Earthquake API to get station information. 
-    d3.json(url).then(function (response) {
-
-        console.log(response.features);
-
-        // send response data to object createFeatures function
-        createFeatures(response.features)
-    });
 
     // check data
     console.log(earthquakeData[0].geometry.coordinates[1]);
