@@ -6,7 +6,7 @@ function getRadius(magnitude) {
     return magnitude * 40000;
 }
 
-// Loop thru the features and create one marker for each place object
+// Loop thru the features and create one circle for each place object
 function getColor(magnitude) {
     var color = "";
     if (magnitude <= 1) {
@@ -49,7 +49,7 @@ function createMap(earthquakes) {
         maxZoom: 18,
         id: "satellite-v9",
         accessToken: API_KEY
-      });
+    });
     // Create a baseMaps object to hold the map layer
     var baseMaps = {
         "lightmap": lightmap,
@@ -74,55 +74,58 @@ function createMap(earthquakes) {
 
 
     // Perform an API call to the Earthquake API to get station information. 
-    d3.json(url, function (response) {
+    d3.json(url).then(function (response) {
 
         console.log(response.features);
 
-        // send response data to object crateMarkers function
+        // send response data to object createFeatures function
         createFeatures(response.features)
     });
-
-
-    function createFeatures(earthquakeData) {
-
-        // check data
-        console.log(earthquakeData[0].geometry.coordinates[1]);
-        console.log(earthquakeData[0].geometry.coordinates[0]);
-        console.log(earthquakeData[0].properties.mag);
-
-
-        // define function for each feature in array
-
-        }        function onEachFeature(feature, layer) {
-            layer.bindPopup("<h3>" + feature.properties.place +
-            "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
-            "<hr> <p> Earthquake Magnitude: " + feature.properties.mag + "</p>")
-
-
-        var earthquakes = L.geoJSON(earthquakeData, {
-
-            onEachFeature: onEachFeature,
-
-            pointToLayer: function (feature, coordinates) {
-
-                // create cicles sized and coloured based on magnitude
-                var feature = {
-                    opacity: 1,
-                    fillOpacity: 1,
-                    fillColor: getColor(feature.properties.mag),
-                    radius: getRadius(feature.properties.mag),
-                    stroke: true,
-                    weight: 0.5
-                }
-                return L.circle(coordinates, features);
-            }
-            
-        })
-        // Sending  earthquakes layer to the createMap function
-        createMap(earthquakes);
-    }
+    L.control.layers(baseMaps, overlayMaps, {
+        collapsed: false
+})
+    
 
 };
+function createFeatures(earthquakeData) {
+
+    // check data
+    console.log(earthquakeData[0].geometry.coordinates[1]);
+    console.log(earthquakeData[0].geometry.coordinates[0]);
+    console.log(earthquakeData[0].properties.mag);
+
+
+    // define function for each feature in array
+} function onEachFeature(feature, layer) {
+    layer.bindPopup("<h3>" + feature.properties.place +
+        "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
+        "<hr> <p> Earthquake Magnitude: " + feature.properties.mag + "</p>")
+
+
+    var earthquakes = L.geoJSON(earthquakeData, {
+
+        onEachFeature: onEachFeature,
+
+        pointToLayer: function (feature, coordinates) {
+
+            // create cicles sized and coloured based on magnitude
+            var feature = {
+                opacity: 1,
+                fillOpacity: 1,
+                fillColor: getColor(feature.properties.mag),
+                radius: getRadius(feature.properties.mag),
+                stroke: true,
+                weight: 0.5
+            }
+            return L.circle(coordinates, features);
+        }
+
+    })
+    // Sending  earthquakes layer to the createMap function
+    createMap(earthquakes);
+}
+
+
 createMap()
 
 
