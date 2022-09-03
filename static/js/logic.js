@@ -3,7 +3,7 @@ var url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.g
 
 // function to create size of circles from magnitude
 function getRadius(magnitude) {
-    return magnitude * 40000;
+    return magnitude * 4;
 }
 
 // Loop thru the features and create one circle for each place object
@@ -62,21 +62,21 @@ function createMap(earthquakes) {
         "Light Map": lightmap,
         "Satellite Map": satellite
     };
+    // Create earthquakes layergroup for overlayMaps
     var earthquakes = new L.LayerGroup();
+
     var overlayMaps = {
         "Earthquakes": earthquakes
     };
 
-
     // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
-    L.control.layers(baseMaps, overlayMaps
-        // collapsed: false
-    ).addTo(map);
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
 
 };
 
 // Perform an API call to the Earthquake API to get station information. 
-d3.json(url,function (response) {
+d3.json(url, function (response) {
 
     console.log(response.features);
 
@@ -86,29 +86,27 @@ d3.json(url,function (response) {
 
 function createFeatures(earthquakeData) {
 
-
     // check data
     console.log(earthquakeData[0].geometry.coordinates[1]);
     console.log(earthquakeData[0].geometry.coordinates[0]);
     console.log(earthquakeData[0].properties.mag);
 
 
-    // define function for each feature in array
+    // Giving each feature a pop-up with information about that specific feature
 } function onEachFeature(feature, layer) {
     layer.bindPopup("<h3>" + feature.properties.place +
         "</h3><hr><p>" + new Date(feature.properties.time) + "</p>" +
         "<hr> <p> Earthquake Magnitude: " + feature.properties.mag + "</p>")
 
-
+    // Create a GeoJSON layer containing the features array on the earthquakeData object
     var earthquakes = L.geoJSON(earthquakeData, {
 
+        // Run the onEachFeature function once for each piece of data in the array
         onEachFeature: onEachFeature,
 
         pointToLayer: function (feature, coordinates) {
-
             // create cicles sized and coloured based on magnitude
             var markers = {
-                opacity: 1,
                 fillOpacity: 1,
                 fillColor: getColor(feature.properties.mag),
                 radius: getRadius(feature.properties.mag),
@@ -122,7 +120,31 @@ function createFeatures(earthquakeData) {
     // Sending  earthquakes layer to the createMap function
     createMap(earthquakes);
 }
+// Create Legend
+var legend = L.control({
+    position: "bottomright"
+})
 
+
+
+// // legend.onAdd = function () {
+//     var div = L.domUtil.create("div", "Legend");
+//     magnitude = [0, 1, 2, 3, 4, 5]
+
+//     // loop for intervals and colors
+
+//     for (var i = 0; i < magnitude.length; i++) {
+//         div.innerHTML +=
+//             '<i style="background:' + colors(magnitude[i] + 1) + '"></i> ' +
+//             magnitude[i] + (magnitude[i + 1] ? '&ndash;' 
+//             + magnitude[i + 1] + '<br>' : '+');
+//     }
+
+//     return div;
+
+
+// // };
+// // legend.addTo(map)
 
 createMap()
 
