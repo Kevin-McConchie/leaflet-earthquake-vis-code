@@ -52,8 +52,8 @@ function createMap(earthquakes) {
     });
     // Create a baseMaps object to hold the map layer
     var baseMaps = {
-        "lightmap": lightmap,
-        "satellite map": satellite
+        "Light Map": lightmap,
+        "Satellite Map": satellite
     };
 
     var overlayMaps = {
@@ -72,6 +72,9 @@ function createMap(earthquakes) {
         collapsed: false
     }).addTo(map);
 
+};
+
+function createFeatures(earthquakeData) {
 
     // Perform an API call to the Earthquake API to get station information. 
     d3.json(url).then(function (response) {
@@ -81,13 +84,6 @@ function createMap(earthquakes) {
         // send response data to object createFeatures function
         createFeatures(response.features)
     });
-    L.control.layers(baseMaps, overlayMaps, {
-        collapsed: false
-})
-    
-
-};
-function createFeatures(earthquakeData) {
 
     // check data
     console.log(earthquakeData[0].geometry.coordinates[1]);
@@ -109,7 +105,7 @@ function createFeatures(earthquakeData) {
         pointToLayer: function (feature, coordinates) {
 
             // create cicles sized and coloured based on magnitude
-            var feature = {
+            var markers = {
                 opacity: 1,
                 fillOpacity: 1,
                 fillColor: getColor(feature.properties.mag),
@@ -117,7 +113,7 @@ function createFeatures(earthquakeData) {
                 stroke: true,
                 weight: 0.5
             }
-            return L.circle(coordinates, features);
+            return L.circle(coordinates, markers);
         }
 
     })
@@ -127,6 +123,7 @@ function createFeatures(earthquakeData) {
 
 
 createMap()
+
 
 
 
