@@ -76,26 +76,27 @@ function createMap(earthquakes) {
     }).addTo(map);
 
     // Create Legend
-    var legend = L.control({
+    let legend = L.control({
         position: "bottomright"
     });
 
-    legend.onAdd = function () {
-        var div = L.domUtil.create("div", "Legend");
-        // magnitude = [0, 1, 2, 3, 4, 5]
+legend.onAdd = function () {
+    let div = L.DomUtil.create("div", "info legend");
+    const magnitude = [0, 1, 2, 3, 4, 5]
+    const colors = ["#83FF00", "#FFEC00", "#ffbf00", "#ff8000", "#FF4600","#FF0000"]
 
-        // // loop for intervals and colors
-        // for (var i = 0; i < magnitude.length; i++) {
-        //     div.innerHTML +=
-        //         '<i style="background:' + colors(magnitude[i] + 1) + '"></i> ' +
-        //         magnitude[i] + (magnitude[i + 1] ? '&ndash;'
-        //             + magnitude[i + 1] + '<br>' : '+');
-        // }
+    // loop for intervals and colors
+    for (var i = 0; i < magnitude.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + colors[i] + '; "height=100 width= 50></i> ' +
+            magnitude[i] + (magnitude[i + 1] ? '&ndash;'
+                + magnitude[i + 1] + '<br>' : '+');
+    }
 
-        return div;
-    };
-    legend.addTo(map)
+    return div;
 };
+    legend.addTo(map)
+    };
 
 // Perform an API call to the Earthquake API to get station information. 
 d3.json(url, function (response) {
@@ -145,26 +146,24 @@ function createFeatures(earthquakeData) {
     createMap(earthquakes);
 };
 
-// // Create Legend
-// var legend = L.control({
-//     position: "bottomright"
-// });
-
-
+//     // Create Legend
+//     let legend = L.control({
+//         position: "bottomright"
+//     });
 
 // legend.onAdd = function () {
-//     var div = L.domUtil.create("div", "Legend");
-//     magnitude = [0, 1, 2, 3, 4, 5]
+//     let div = L.domUtil.create("div", "Info Legend");
+//     const magnitude = [0, 1, 2, 3, 4, 5]
+//     const colors = ["#83FF00", "#FFEC00", "#ffbf00", "#ff8000", "#FF4600"]
 
 //     // loop for intervals and colors
-
 //     for (var i = 0; i < magnitude.length; i++) {
 //         div.innerHTML +=
-//             '<i style="background:' + colors(magnitude[i] + 1) + '"></i> ' +
+//             '<i style="background:' + colors[i] + '"></i> ' +
 //             magnitude[i] + (magnitude[i + 1] ? '&ndash;'
 //                 + magnitude[i + 1] + '<br>' : '+');
 //     }
 
 //     return div;
 // };
-// legend.addTo(map)
+//     legend.addTo(map)
