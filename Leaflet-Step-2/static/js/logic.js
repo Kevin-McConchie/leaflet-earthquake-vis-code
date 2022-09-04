@@ -39,7 +39,6 @@ function createMap(earthquakes) {
     var map = L.map("map", {
         center: [40.73, -74.0059],
         zoom: 3,
-        // layers: [lightmap, earthquakes]
     });
     // Create the tile layer that will be the background of our map
     var satellite = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -50,18 +49,28 @@ function createMap(earthquakes) {
 
     }).addTo(map);
 
-    var satellite = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
         maxZoom: 18,
-        id: "",
+        id: "light-v10",
         accessToken: API_KEY
     });
+
+    var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+        maxZoom: 18,
+        id: "dark-v10",
+        accessToken: API_KEY
+    });
+
+
 
     // Create a baseMaps object to hold the map layer
     var baseMaps = {
         "Satellite Map": satellite,
-        "Light Map": lightmap
-        
+        "Light Map": lightmap,
+        "Dark Map": darkmap
+
     };
     // Create earthquakes layergroup for overlayMaps
     if (earthquakes == null) {
@@ -76,44 +85,79 @@ function createMap(earthquakes) {
         collapsed: false
     }).addTo(map);
 
+    //=======Add tectonic plate information======
+
+    // Create a new Fault Line Layer Group.
+    if (faultlines == null) {
+        var faultlines = new L.layerGroup()
+    };
+
+    // Store Fault Lines in this variable for the map.
+    var plateQuery = '../..data/PB2002_plates.json'
+
+    d3.json(plateQuery, function (plates) {
+        // Giving each feature a pop-up with information about that specific feature
+        function onEachFeature(feature, layer) {
+            layer.bindPopup("<h3>Tectonic Plate Name: " + feature.properties.PlateName + "</h3><hr>"
+            );
+        }
+        console.log(plates);
+        console.log(plates.features);
+        // console.log(plates.features[0].properties);
+
+
+        L.geoJSON(plates, {
+
+            onEachFeature: onEachFeature,
+
+            style: function () {
+                return {
+                    fillColor: "#FF9B00",
+                    fillOpacity: 0
+                }
+            }
+        }).addTo(faultlines)
+    });
+
     // Create Legend
     let legend = L.control({
         position: "bottomright"
     });
 
-legend.onAdd = function () {
-    let div = L.DomUtil.create("div", "info legend");
-    const magnitude = [0, 1, 2, 3, 4, 5]
-    const colors = ["#83FF00", "#FFEC00", "#ffbf00", "#ff8000", "#FF4600","#FF0000"]
+    legend.onAdd = function () {
+        let div = L.DomUtil.create("div", "info legend");
+        const magnitude = [0, 1, 2, 3, 4, 5]
+        const colors = ["#83FF00", "#FFEC00", "#ffbf00", "#ff8000", "#FF4600", "#FF0000"]
 
-    // loop for intervals and colors
-    for (var i = 0; i < magnitude.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + colors[i] + '; "height=100 width= 50></i> ' +
-            magnitude[i] + (magnitude[i + 1] ? '&ndash;'
-                + magnitude[i + 1] + '<br>' : '+');
-    }
+        // loop for intervals and colors
+        for (var i = 0; i < magnitude.length; i++) {
+            div.innerHTML +=
+                '<i style="background:' + colors[i] + '; "height=100 width= 50></i> ' +
+                magnitude[i] + (magnitude[i + 1] ? '&ndash;'
+                    + magnitude[i + 1] + '<br>' : '+');
+        }
 
-    return div;
-};
-    legend.addTo(map)
+        return div;
     };
+    legend.addTo(map)
+};
 
 // Perform an API call to the Earthquake API to get station information. 
 d3.json(url, function (response) {
 
-    console.log(response.features);
+    // console.log(response.features);
 
     // send response data to object createFeatures function
     createFeatures(response.features)
 });
 
+
 function createFeatures(earthquakeData) {
 
     // check data
-    console.log(earthquakeData[0].geometry.coordinates[1]);
-    console.log(earthquakeData[0].geometry.coordinates[0]);
-    console.log(earthquakeData[0].properties.mag);
+    // console.log(earthquakeData[0].geometry.coordinates[1]);
+    // console.log(earthquakeData[0].geometry.coordinates[0]);
+    // console.log(earthquakeData[0].properties.mag);
 
 
     // Giving each feature a pop-up with information about that specific feature
